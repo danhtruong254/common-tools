@@ -17,14 +17,20 @@ function automateDataSafetyForm() {
         const labels = parentElement.querySelectorAll('label');
         for (let label of labels) {
             if (label.textContent.trim() === labelText) {
+                // Handle label with 'for' attribute
                 if (label.htmlFor) {
+                    const input = document.getElementById(label.htmlFor);
                     if (input && input.type === inputType) return input;
                 }
+
+                // Try to find input in custom component parent
                 let componentParent = label.closest('material-checkbox, material-radio');
                 if (componentParent) {
                     const input = componentParent.querySelector(`input[type="${inputType}"]`);
                     if (input) return input;
                 }
+
+                // Fallback to nearby input elements
                 let potentialInput = label.parentElement.querySelector(`input[type="${inputType}"]`) ||
                                      label.previousElementSibling;
                 if (potentialInput && potentialInput.tagName === 'INPUT' && potentialInput.type === inputType) {
@@ -70,18 +76,28 @@ function automateDataSafetyForm() {
 
     // Step 3: Continue automation after dynamic content is available
     function proceedWithRest(ephemeralityGroup, userControlGroup, collectedPurposeContainer, sharedPurposeContainer) {
-        const ephemeralYesRadio = findInputByLabelText("Yes, this collected data is processed ephemerally", ephemeralityGroup, 'radio');
+        const ephemeralYesRadio = findInputByLabelText(
+            "Yes, this collected data is processed ephemerally",
+            ephemeralityGroup,
+            'radio'
+        );
         clickIfNotChecked(ephemeralYesRadio);
 
-        const usersCanChooseRadio = findInputByLabelText("Users can choose whether this data is collected", userControlGroup, 'radio');
+        const usersCanChooseRadio = findInputByLabelText(
+            "Users can choose whether this data is collected",
+            userControlGroup,
+            'radio'
+        );
         clickIfNotChecked(usersCanChooseRadio);
 
-        ["App functionality", "Analytics", "Developer communications"].forEach(purpose => {
+        const purposes = ["App functionality", "Analytics", "Developer communications"];
+
+        purposes.forEach(purpose => {
             const checkbox = findInputByLabelText(purpose, collectedPurposeContainer, 'checkbox');
             clickIfNotChecked(checkbox);
         });
 
-        ["App functionality", "Analytics", "Developer communications"].forEach(purpose => {
+        purposes.forEach(purpose => {
             const checkbox = findInputByLabelText(purpose, sharedPurposeContainer, 'checkbox');
             clickIfNotChecked(checkbox);
         });
@@ -89,8 +105,9 @@ function automateDataSafetyForm() {
         console.log("Automation complete.");
     }
 
-    // Run the first step
+    // Start the automation
     tickCollectedAndShared();
 }
 
-automateDataSafetyForm()
+// Run the script
+automateDataSafetyForm();
